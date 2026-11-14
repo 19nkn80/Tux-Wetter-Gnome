@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.tuxwetter" path="/org/gnome/shell/extensions/tuxwetter/">
+    <key name="location-name" type="s">
+      <default>'Luzern'</default>
+      <summary>Location name</summary>
+    </key>
+    <key name="latitude" type="d">
+      <default>47.0505</default>
+      <range min="-90.0" max="90.0"/>
+      <summary>Location latitude</summary>
+    </key>
+    <key name="longitude" type="d">
+      <default>8.3064</default>
+      <range min="-180.0" max="180.0"/>
+      <summary>Location longitude</summary>
+    </key>
+    <key name="use-fahrenheit" type="b">
+      <default>false</default>
+      <summary>Show temperatures in Fahrenheit</summary>
+    </key>
+    <key name="show-feels-like" type="b">
+      <default>true</default>
+      <summary>Show feels-like temperature</summary>
+    </key>
+    <key name="show-details" type="b">
+      <default>true</default>
+      <summary>Show sunrise, sunset and UV index</summary>
+    </key>
+    <key name="color-scheme" type="s">
+      <default>'violett'</default>
+      <summary>Weather card color scheme</summary>
+    </key>
+    <key name="update-interval" type="i">
+      <default>15</default>
+      <range min="10" max="120"/>
+      <summary>Weather update interval in minutes</summary>
+    </key>
+    <key name="places" type="s">
+      <default>'[]'</default>
+      <summary>Saved weather locations</summary>
+    </key>
+  </schema>
+</schemalist>

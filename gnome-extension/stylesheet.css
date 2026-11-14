@@ -1,0 +1,311 @@
+/* SPDX-FileCopyrightText: 2026 R.Bruns */
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+.tuxwetter-card-item {
+  padding: 0;
+  spacing: 0;
+}
+
+.tuxwetter-card {
+  min-width: 500px;
+  max-width: 540px;
+  padding: 20px 22px 14px;
+  spacing: 7px;
+  color: #f3f5ff;
+  background-gradient-direction: vertical;
+  background-gradient-start: rgba(105, 66, 116, 0.99);
+  background-gradient-end: rgba(48, 41, 143, 0.99);
+  border: 1px solid rgba(220, 218, 255, 0.38);
+  border-radius: 17px;
+}
+
+.tuxwetter-card-violett {
+  background-gradient-start: rgba(105, 66, 116, 0.99);
+  background-gradient-end: rgba(48, 41, 143, 0.99);
+}
+
+.tuxwetter-card-blau {
+  background-gradient-start: rgba(75, 79, 159, 0.99);
+  background-gradient-end: rgba(36, 57, 127, 0.99);
+}
+
+.tuxwetter-card-petrol {
+  background-gradient-start: rgba(42, 105, 128, 0.99);
+  background-gradient-end: rgba(28, 99, 116, 0.99);
+}
+
+.tuxwetter-card-gruen {
+  background-gradient-start: rgba(47, 111, 88, 0.99);
+  background-gradient-end: rgba(27, 95, 78, 0.99);
+}
+
+.tuxwetter-card-bordeaux {
+  background-gradient-start: rgba(134, 54, 80, 0.99);
+  background-gradient-end: rgba(104, 35, 83, 0.99);
+}
+
+.tuxwetter-card-sonnenuntergang {
+  background-gradient-start: rgba(167, 83, 118, 0.99);
+  background-gradient-end: rgba(137, 71, 100, 0.99);
+}
+
+.tuxwetter-card-graphit {
+  background-gradient-start: rgba(78, 82, 98, 0.99);
+  background-gradient-end: rgba(48, 53, 78, 0.99);
+}
+
+.tuxwetter-card-nacht {
+  background-gradient-start: rgba(46, 49, 88, 0.99);
+  background-gradient-end: rgba(28, 35, 76, 0.99);
+}
+
+.tuxwetter-header {
+  padding-bottom: 8px;
+  spacing: 7px;
+  border-bottom: 1px solid rgba(230, 232, 255, 0.2);
+}
+
+.tuxwetter-place {
+  color: #ffffff;
+  font-size: 1.4em;
+  font-weight: bold;
+}
+
+.tuxwetter-place-count {
+  color: #d3d5f1;
+  font-size: 0.85em;
+}
+
+.tuxwetter-place-arrow,
+.tuxwetter-footer-button {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+  color: #f1efff;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.tuxwetter-place-arrow:hover,
+.tuxwetter-footer-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.tuxwetter-hero {
+  min-height: 110px;
+  spacing: 16px;
+}
+
+.tuxwetter-lead {
+  spacing: 6px;
+}
+
+.tuxwetter-hero-icon {
+  icon-size: 90px;
+}
+
+.tuxwetter-temperature-row {
+  spacing: 2px;
+}
+
+.tuxwetter-temperature {
+  color: #ffffff;
+  font-size: 4.1em;
+  font-weight: 300;
+}
+
+.tuxwetter-units {
+  padding-top: 12px;
+  spacing: 2px;
+}
+
+.tuxwetter-unit {
+  min-width: 34px;
+  min-height: 22px;
+  padding: 1px 3px;
+  color: rgba(246, 245, 255, 0.7);
+  background-color: transparent;
+  border-radius: 5px;
+  font-size: 0.78em;
+}
+
+.tuxwetter-unit-active {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.2);
+  font-weight: bold;
+}
+
+.tuxwetter-summary {
+  spacing: 7px;
+}
+
+.tuxwetter-metrics {
+  spacing: 13px;
+}
+
+.tuxwetter-metric {
+  spacing: 5px;
+}
+
+.tuxwetter-metric-icon {
+  icon-size: 24px;
+}
+
+.tuxwetter-metric-wind,
+.tuxwetter-metric-value {
+  color: #ffffff;
+  font-size: 1.02em;
+  font-weight: bold;
+}
+
+.tuxwetter-condition {
+  color: #f0edff;
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+.tuxwetter-today {
+  spacing: 12px;
+}
+
+.tuxwetter-feels-like {
+  color: #d2d3f0;
+  font-size: 0.92em;
+}
+
+.tuxwetter-high-low {
+  color: #ffffff;
+  font-size: 0.98em;
+  font-weight: bold;
+}
+
+.tuxwetter-warning {
+  padding: 7px 10px;
+  spacing: 8px;
+  background-color: rgba(255, 201, 40, 0.16);
+  border-radius: 8px;
+}
+
+.tuxwetter-warning-2 {
+  background-color: rgba(255, 140, 50, 0.22);
+}
+
+.tuxwetter-warning-3,
+.tuxwetter-warning-4 {
+  background-color: rgba(255, 73, 73, 0.24);
+}
+
+.tuxwetter-warning-icon,
+.tuxwetter-warning-text {
+  color: #ffe3a1;
+}
+
+.tuxwetter-hourly {
+  padding: 5px 2px;
+  spacing: 5px;
+  border-top: 1px solid rgba(230, 232, 255, 0.2);
+  border-bottom: 1px solid rgba(230, 232, 255, 0.2);
+}
+
+.tuxwetter-hour {
+  spacing: 2px;
+}
+
+.tuxwetter-hour-time {
+  color: #d5d7ef;
+  font-size: 0.78em;
+}
+
+.tuxwetter-hour-icon {
+  icon-size: 44px;
+}
+
+.tuxwetter-hour-temperature {
+  color: #ffffff;
+  font-size: 1.02em;
+  font-weight: bold;
+}
+
+.tuxwetter-divider {
+  height: 1px;
+  background-color: rgba(230, 232, 255, 0.28);
+}
+
+.tuxwetter-day {
+  min-height: 28px;
+  spacing: 7px;
+}
+
+.tuxwetter-day-name {
+  min-width: 43px;
+  color: #f0edff;
+  font-weight: bold;
+}
+
+.tuxwetter-day-icon {
+  icon-size: 27px;
+}
+
+.tuxwetter-day-precipitation {
+  min-width: 65px;
+  color: #c6ddff;
+  font-size: 0.82em;
+}
+
+.tuxwetter-day-low,
+.tuxwetter-day-high {
+  min-width: 35px;
+  color: #ffffff;
+  font-size: 0.88em;
+}
+
+.tuxwetter-range-track {
+  min-width: 54px;
+  height: 5px;
+  background-color: rgba(255, 255, 255, 0.22);
+  border-radius: 3px;
+}
+
+.tuxwetter-range-fill {
+  background-gradient-direction: horizontal;
+  background-gradient-start: #79c8f4;
+  background-gradient-end: #ffc078;
+  border-radius: 3px;
+}
+
+.tuxwetter-sun {
+  padding-top: 6px;
+  spacing: 7px;
+}
+
+.tuxwetter-sun-icon {
+  color: #ffe099;
+  icon-size: 20px;
+}
+
+.tuxwetter-sun-text {
+  color: #e0def6;
+  font-size: 0.85em;
+}
+
+.tuxwetter-footer {
+  padding-top: 7px;
+  spacing: 7px;
+  border-top: 1px solid rgba(230, 232, 255, 0.2);
+}
+
+.tuxwetter-source,
+.tuxwetter-updated {
+  color: #c5c6e4;
+  font-size: 0.76em;
+}
+
+.tuxwetter-message,
+.tuxwetter-error {
+  padding: 12px 0;
+  color: #ffffff;
+}
+
+.tuxwetter-error {
+  color: #ffd2cc;
+}
