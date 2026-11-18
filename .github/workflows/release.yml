@@ -41,8 +41,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          gh release create "$RELEASE_TAG" \
-            'tuxwetter@tuxwetter.ch.shell-extension.zip' \
-            --verify-tag \
-            --title "TuX-Wetter $RELEASE_TAG" \
-            --notes "Das Installationspaket befindet sich unter „Assets“. Die Installations- und Updateanleitung steht in der README."
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" \
+              'tuxwetter@tuxwetter.ch.shell-extension.zip' --clobber
+          else
+            gh release create "$RELEASE_TAG" \
+              'tuxwetter@tuxwetter.ch.shell-extension.zip' \
+              --verify-tag \
+              --title "TuX-Wetter $RELEASE_TAG" \
+              --notes "Das Installationspaket befindet sich unter „Assets“. Die Installations- und Updateanleitung steht in der README."
+          fi

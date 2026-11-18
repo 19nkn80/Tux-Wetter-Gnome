@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 R.Bruns
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import {compareVersions, newerRelease} from '../gnome-extension/updates.js';
+import {compareVersions, newerRelease, releaseRequestHeaders} from '../gnome-extension/updates.js';
 import {displayError} from '../gnome-extension/errors.js';
 import {isGerman, text} from '../gnome-extension/ui-language.js';
 
@@ -16,6 +16,8 @@ assert(displayError(new Error('HTTP-Fehler 403')) === 'HTTP-Fehler 403',
     'known errors should retain their German details');
 assert(displayError(new SyntaxError('unexpected token')).startsWith('Technischer Fehler'),
     'runtime errors should not expose untranslated diagnostics in the interface');
+assert(releaseRequestHeaders('0.2')['User-Agent'].includes('TuXWetterGnome/0.2'),
+    'GitHub requests must identify the installed extension version');
 assert(compareVersions('v0.2', '0.1') === 1, 'newer versions should compare greater');
 assert(compareVersions('0.10', '0.2') === 1, 'version parts should compare numerically');
 assert(compareVersions('0.1.0', '0.1') === 0, 'trailing zero parts should compare equal');

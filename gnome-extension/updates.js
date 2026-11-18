@@ -3,6 +3,14 @@
 
 export const RELEASE_API_URL = 'https://api.github.com/repos/19nkn80/Tux-Wetter-Gnome/releases/latest';
 
+export function releaseRequestHeaders(version) {
+    return {
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': `TuXWetterGnome/${version} (https://github.com/19nkn80/Tux-Wetter-Gnome)`,
+    };
+}
+
 function versionParts(version) {
     if (typeof version !== 'string' || !/^v?\d+(?:\.\d+)*$/i.test(version))
         throw new Error(`Ungültige Version: ${version}`);

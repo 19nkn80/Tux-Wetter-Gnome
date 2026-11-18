@@ -9,7 +9,7 @@ import Soup from 'gi://Soup?version=3.0';
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import {geocodingUrl, parseGeocodingResults} from './weather.js';
 import {WEATHER_PROVIDERS} from './providers.js';
-import {newerRelease, RELEASE_API_URL} from './updates.js';
+import {newerRelease, releaseRequestHeaders, RELEASE_API_URL} from './updates.js';
 import {IP_LOCATION_URL, parseIpLocation} from './location.js';
 import {displayError} from './errors.js';
 import {isGerman, text} from './ui-language.js';
@@ -493,8 +493,8 @@ export default class TuxWetterPreferences extends ExtensionPreferences {
             updateStatus.subtitle = text('GitHub wird geprüft …', 'Checking GitHub …');
 
             const message = Soup.Message.new('GET', RELEASE_API_URL);
-            message.request_headers.append('Accept', 'application/vnd.github+json');
-            message.request_headers.append('X-GitHub-Api-Version', '2022-11-28');
+            for (const [name, value] of Object.entries(releaseRequestHeaders(installedVersion)))
+                message.request_headers.append(name, value);
             session.send_and_read_async(
                 message,
                 GLib.PRIORITY_DEFAULT,
