@@ -10,7 +10,8 @@ Orte lassen sich über die Open-Meteo-Geocodierung suchen und speichern; Farbsch
 Temperatureinheit und Aktualisierungsintervall sind einstellbar.
 Die Erweiterung prüft im Hintergrund und in den Einstellungen auf neue
 GitHub-Releases. Ein Update wird erst nach Bestätigung im Dialog heruntergeladen
-und installiert. Nach der Installation bitte ab- und wieder anmelden.
+und installiert. Nach Erfolg bietet ein Dialog das Abmelden an; anschließend
+bitte wieder anmelden. Fehler werden angezeigt.
 Auswählbar sind Open-Meteo, DWD ICON-D2 und MeteoSwiss ICON-CH2 (beide über
 Open-Meteo), GeoSphere Austria sowie MET Norway / Yr. Die Anbieterauswahl und
 die dazugehörigen Prognose-APIs bleiben unverändert. GeoSphere deckt den

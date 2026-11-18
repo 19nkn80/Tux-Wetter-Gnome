@@ -4,7 +4,7 @@
 import {compareVersions, newerRelease, releaseRequestHeaders} from '../gnome-extension/updates.js';
 import {displayError} from '../gnome-extension/errors.js';
 import {isGerman, text} from '../gnome-extension/ui-language.js';
-import {updateAsset} from '../gnome-extension/update-service.js';
+import {updateAsset, validateInstalledMetadata} from '../gnome-extension/update-service.js';
 
 function assert(condition, message) {
     if (!condition)
@@ -47,6 +47,20 @@ for (const asset of [
 }
 assert(updateAsset(releaseWithAsset, '0.2') === null,
     'the currently installed release must not trigger an update');
+validateInstalledMetadata({uuid: 'tuxwetter@tuxwetter.ch', 'version-name': '0.2'}, '0.2');
+for (const metadata of [
+    {uuid: 'tuxwetter@tuxwetter.ch', 'version-name': '0.1'},
+    {uuid: 'other@example.com', 'version-name': '0.2'},
+    {uuid: 'tuxwetter@tuxwetter.ch'},
+]) {
+    let rejected = false;
+    try {
+        validateInstalledMetadata(metadata, '0.2');
+    } catch {
+        rejected = true;
+    }
+    assert(rejected, 'installation success requires the expected extension and version');
+}
 assert(compareVersions('v0.2', '0.1') === 1, 'newer versions should compare greater');
 assert(compareVersions('0.10', '0.2') === 1, 'version parts should compare numerically');
 assert(compareVersions('0.1.0', '0.1') === 0, 'trailing zero parts should compare equal');

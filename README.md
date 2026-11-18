@@ -165,8 +165,11 @@ ebenfalls beim Öffnen geprüft; mit „Jetzt suchen“ kann die Prüfung erneut
 gestartet werden. Bei einem Treffer öffnet sich ein Dialog mit „Update“ und
 „Abbrechen“. Nur nach Zustimmung wird das Release-ZIP heruntergeladen, anhand
 der GitHub-SHA-256-Prüfsumme geprüft und mit `gnome-extensions install --force`
-installiert. Danach bitte ab- und wieder anmelden. Bei „Abbrechen“ wird nichts
-installiert. Alternativ lässt sich das Release weiterhin manuell öffnen.
+installiert. Nach erfolgreicher Prüfung der installierten Version meldet ein
+Dialog den Erfolg und bietet „Abmelden“ oder „Jetzt nicht abmelden“ an.
+„Abmelden“ öffnet den regulären GNOME-Abmeldedialog; danach wieder anmelden.
+Bei einem Fehler wird dieser angezeigt; bei „Abbrechen“ wird nichts installiert.
+Alternativ lässt sich das Release weiterhin manuell öffnen.
 Der Update-Check verwendet öffentliche GitHub-Releases; bei einem privaten
 Repository oder ohne veröffentlichtes Release meldet er, dass kein Release
 gefunden wurde. Ein veröffentlichtes Release braucht einen numerischen Tag,

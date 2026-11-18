@@ -9,7 +9,7 @@ import Soup from 'gi://Soup?version=3.0';
 import * as Dialog from 'resource:///org/gnome/shell/ui/dialog.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as ModalDialog from 'resource:///org/gnome/shell/ui/modalDialog.js';
-import {checkForUpdate, installUpdate} from './update-service.js';
+import {checkForUpdate, installUpdate, requestLogout} from './update-service.js';
 
 export class BackgroundUpdates {
     constructor(version) {
@@ -73,28 +73,31 @@ export class BackgroundUpdates {
     }
 
     _showDialog(release) {
+        this._showMessage(
+            `TuX-Wetter ${release.version} ist verfügbar`,
+            'Das Update von GitHub herunterladen und installieren? '
+                + 'Deine Einstellungen bleiben erhalten. Anschließend bitte ab- und wieder anmelden.',
+            [
+                {label: 'Abbrechen', key: Clutter.KEY_Escape, default: true},
+                {label: 'Update', action: () => this._install(release)},
+            ]);
+    }
+
+    _showMessage(title, description, buttons) {
         const dialog = new ModalDialog.ModalDialog();
         this._dialog = dialog;
         dialog.contentLayout.add_child(new Dialog.MessageDialogContent({
-            title: `TuX-Wetter ${release.version} ist verfügbar`,
-            description: 'Das Update von GitHub herunterladen und installieren? '
-                + 'Deine Einstellungen bleiben erhalten. Anschließend bitte ab- und wieder anmelden.',
+            title,
+            description,
         }));
-        dialog.setButtons([
-            {
-                label: 'Abbrechen',
-                key: Clutter.KEY_Escape,
-                default: true,
-                action: () => dialog.close(),
+        dialog.setButtons(buttons.map(button => ({
+            ...button,
+            action: () => {
+                dialog.close();
+                if (button.action)
+                    button.action();
             },
-            {
-                label: 'Update',
-                action: () => {
-                    dialog.close();
-                    this._install(release);
-                },
-            },
-        ]);
+        })));
         dialog.connect('closed', () => {
             if (this._dialog === dialog)
                 this._dialog = null;
@@ -102,7 +105,7 @@ export class BackgroundUpdates {
         if (!dialog.open()) {
             this._dialog = null;
             dialog.destroy();
-            Main.notify('TuX-Wetter', 'Der Update-Dialog konnte nicht geöffnet werden.');
+            Main.notify('TuX-Wetter', `${title}. ${description}`);
         }
     }
 
@@ -111,15 +114,36 @@ export class BackgroundUpdates {
         Main.notify('TuX-Wetter', `Update auf Version ${release.version} wird heruntergeladen …`);
         try {
             await installUpdate(this._session, release, this._cancellable);
-            if (!this._stopped)
-                Main.notify('TuX-Wetter', 'Update installiert. Bitte ab- und wieder anmelden.');
+            if (!this._stopped) {
+                this._showMessage(
+                    'Update erfolgreich',
+                    `TuX-Wetter ${release.version} wurde installiert. `
+                        + 'Bitte abmelden und wieder anmelden, um die neue Version zu laden.',
+                    [
+                        {label: 'Jetzt nicht abmelden', key: Clutter.KEY_Escape, default: true},
+                        {label: 'Abmelden', action: () => this._logout()},
+                    ]);
+            }
         } catch (error) {
             if (!this._stopped) {
                 console.error(`TuX-Wetter: Update fehlgeschlagen: ${error.message}`);
-                Main.notify('TuX-Wetter', 'Update fehlgeschlagen. Einzelheiten stehen im Systemprotokoll.');
+                this._showMessage(
+                    'Update fehlgeschlagen',
+                    'Das Update konnte nicht bestätigt werden. Einzelheiten stehen im Systemprotokoll.',
+                    [{label: 'Schließen', key: Clutter.KEY_Escape, default: true}]);
             }
         } finally {
             this._busy = false;
+        }
+
+        async _logout() {
+            try {
+                await requestLogout();
+            } catch (error) {
+                console.error(`TuX-Wetter: Abmelden fehlgeschlagen: ${error.message}`);
+                if (!this._stopped)
+                    Main.notify('TuX-Wetter', 'Abmelden fehlgeschlagen. Bitte melde dich über das Systemmenü ab.');
+            }
         }
     }
 }

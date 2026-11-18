@@ -9,7 +9,7 @@ import Soup from 'gi://Soup?version=3.0';
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import {geocodingUrl, parseGeocodingResults} from './weather.js';
 import {WEATHER_PROVIDERS} from './providers.js';
-import {checkForUpdate, installUpdate} from './update-service.js';
+import {checkForUpdate, installUpdate, requestLogout} from './update-service.js';
 import {IP_LOCATION_URL, parseIpLocation} from './location.js';
 import {displayError} from './errors.js';
 import {isGerman, text} from './ui-language.js';
@@ -483,6 +483,28 @@ export default class TuxWetterPreferences extends ExtensionPreferences {
 
         saveLocation.connect('clicked', savePlace);
         saveCurrent.connect('clicked', addCurrentPlace);
+        const showUpdateResult = (heading, body, offerLogout = false) => {
+            const result = new Adw.AlertDialog({heading, body});
+            result.add_response('later', offerLogout ? 'Jetzt nicht abmelden' : 'Schließen');
+            result.set_default_response('later');
+            result.set_close_response('later');
+            if (offerLogout) {
+                result.add_response('logout', 'Abmelden');
+                result.connect('response', async (_dialog, response) => {
+                    if (response !== 'logout')
+                        return;
+                    try {
+                        await requestLogout();
+                    } catch (error) {
+                        console.error(`TuX-Wetter: Abmelden fehlgeschlagen: ${error.message}`);
+                        updateStatus.subtitle = 'Abmelden fehlgeschlagen. Bitte das Systemmenü verwenden.';
+                        showUpdateResult('Abmelden fehlgeschlagen',
+                            'Bitte melde dich über das Systemmenü ab.');
+                    }
+                });
+            }
+            result.present(window);
+        };
         const checkForUpdates = async () => {
             updateCancellable?.cancel();
             updateCancellable = new Gio.Cancellable();
@@ -520,12 +542,20 @@ export default class TuxWetterPreferences extends ExtensionPreferences {
                     updateStatus.subtitle = 'Update wird heruntergeladen und installiert …';
                     try {
                         await installUpdate(session, release, cancellable);
-                        if (!cancellable.is_cancelled())
+                        if (!cancellable.is_cancelled()) {
                             updateStatus.subtitle = 'Update installiert. Bitte ab- und wieder anmelden.';
+                            showUpdateResult(
+                                'Update erfolgreich',
+                                `TuX-Wetter ${release.version} wurde installiert. `
+                                    + 'Bitte abmelden und wieder anmelden, um die neue Version zu laden.',
+                                true);
+                        }
                     } catch (error) {
                         if (!cancellable.is_cancelled()) {
                             updateStatus.subtitle = `Update fehlgeschlagen: ${displayError(error)}`;
                             console.error(`TuX-Wetter: Update fehlgeschlagen: ${error.message}`);
+                            showUpdateResult('Update fehlgeschlagen',
+                                `${displayError(error)} Bitte versuche es erneut oder installiere das ZIP manuell.`);
                         }
                     } finally {
                         if (updateCancellable === cancellable)

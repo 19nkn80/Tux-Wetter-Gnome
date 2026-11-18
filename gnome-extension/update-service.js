@@ -5,7 +5,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Soup from 'gi://Soup?version=3.0';
 
-import {newerRelease, RELEASE_API_URL} from './updates.js';
+import {compareVersions, newerRelease, RELEASE_API_URL} from './updates.js';
 
 const ASSET_NAME = 'tuxwetter@tuxwetter.ch.shell-extension.zip';
 const MAX_ASSET_SIZE = 20 * 1024 * 1024;
@@ -103,6 +103,53 @@ function installPackage(path) {
     });
 }
 
+export function validateInstalledMetadata(metadata, version) {
+    if (metadata?.uuid !== 'tuxwetter@tuxwetter.ch' ||
+        typeof metadata['version-name'] !== 'string' ||
+        compareVersions(metadata['version-name'], version) !== 0)
+        throw new Error('Die installierte Erweiterung oder Version stimmt nicht überein.');
+}
+
+function verifyInstalledVersion(version) {
+    const path = GLib.build_filenamev([
+        GLib.get_user_data_dir(), 'gnome-shell', 'extensions',
+        'tuxwetter@tuxwetter.ch', 'metadata.json',
+    ]);
+    try {
+        const [success, bytes] = GLib.file_get_contents(path);
+        if (!success)
+            throw new Error('Metadaten konnten nicht gelesen werden.');
+        const metadata = JSON.parse(new TextDecoder().decode(bytes));
+        validateInstalledMetadata(metadata, version);
+    } catch (error) {
+        console.error(`TuX-Wetter: Installationsprüfung fehlgeschlagen: ${error.message}`);
+        throw new Error('Die Installation konnte nicht anhand der installierten Version bestätigt werden.');
+    }
+}
+
+export function requestLogout() {
+    return new Promise((resolve, reject) => {
+        Gio.DBus.session.call(
+            'org.gnome.SessionManager',
+            '/org/gnome/SessionManager',
+            'org.gnome.SessionManager',
+            'Logout',
+            new GLib.Variant('(u)', [0]),
+            null,
+            Gio.DBusCallFlags.NONE,
+            -1,
+            null,
+            (connection, result) => {
+                try {
+                    connection.call_finish(result);
+                    resolve();
+                } catch (error) {
+                    reject(error);
+                }
+            });
+    });
+}
+
 export async function installUpdate(session, release, cancellable) {
     const message = Soup.Message.new('GET', release.downloadUrl);
     requestHeaders(message);
@@ -133,6 +180,7 @@ export async function installUpdate(session, release, cancellable) {
         if (cancellable.is_cancelled())
             throw new Error('Der Update-Download wurde abgebrochen.');
         await installPackage(file.get_path());
+        verifyInstalledVersion(release.version);
     } finally {
         input.close(null);
         output?.close(null);
