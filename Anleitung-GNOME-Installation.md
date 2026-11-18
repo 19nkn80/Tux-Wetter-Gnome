@@ -64,12 +64,12 @@ Wenn du den Terminal-Download aus Schritt 2 verwendet hast, führe aus:
 gnome-extensions install --force "$HOME/tuxwetter@tuxwetter.ch.shell-extension.zip"
 ```
 
-Wenn du stattdessen die beiliegende Datei
-`TuX-Wetter-GNOME-0.2.shell-extension.zip` verwendest, öffne im Dateimanager
+Wenn du stattdessen die heruntergeladene Datei
+`tuxwetter@tuxwetter.ch.shell-extension.zip` verwendest, öffne im Dateimanager
 den Ordner mit der Datei, wähle **Im Terminal öffnen** und führe aus:
 
 ```sh
-gnome-extensions install --force ./TuX-Wetter-GNOME-0.2.shell-extension.zip
+gnome-extensions install --force ./tuxwetter@tuxwetter.ch.shell-extension.zip
 ```
 
 `--force` ersetzt eine bereits installierte Version. Für eine Installation
