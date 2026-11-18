@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.tuxwetter" path="/org/gnome/shell/extensions/tuxwetter/">
+    <key name="location-name" type="s">
+      <default>'Luzern'</default>
+      <summary>Ortsname</summary>
+    </key>
+    <key name="location-country" type="s">
+      <default>'CH'</default>
+      <summary>Ländercode des Orts</summary>
+    </key>
+    <key name="location-postcodes" type="s">
+      <default>'[&quot;6000&quot;,&quot;6003&quot;,&quot;6004&quot;,&quot;6006&quot;,&quot;6014&quot;,&quot;6005&quot;]'</default>
+      <summary>Postleitzahlen des Orts</summary>
+    </key>
+    <key name="latitude" type="d">
+      <default>47.0505</default>
+      <range min="-90.0" max="90.0"/>
+      <summary>Breitengrad des Orts</summary>
+    </key>
+    <key name="longitude" type="d">
+      <default>8.3064</default>
+      <range min="-180.0" max="180.0"/>
+      <summary>Längengrad des Orts</summary>
+    </key>
+    <key name="use-fahrenheit" type="b">
+      <default>false</default>
+      <summary>Temperaturen in Fahrenheit anzeigen</summary>
+    </key>
+    <key name="show-feels-like" type="b">
+      <default>true</default>
+      <summary>Gefühlte Temperatur anzeigen</summary>
+    </key>
+    <key name="show-details" type="b">
+      <default>true</default>
+      <summary>Sonnenaufgang, Sonnenuntergang und UV-Index anzeigen</summary>
+    </key>
+    <key name="show-moon" type="b">
+      <default>true</default>
+      <summary>Mondphase und Mondzeiten anzeigen</summary>
+    </key>
+    <key name="show-air-quality" type="b">
+      <default>true</default>
+      <summary>Luftqualität und Pollen anzeigen</summary>
+    </key>
+    <key name="show-rain-details" type="b">
+      <default>true</default>
+      <summary>Regenvorschau in 15-Minuten-Schritten anzeigen</summary>
+    </key>
+    <key name="color-scheme" type="s">
+      <default>'violett'</default>
+      <summary>Farbschema der Wetterkarte</summary>
+    </key>
+    <key name="update-interval" type="i">
+      <default>15</default>
+      <range min="10" max="120"/>
+      <summary>Aktualisierungsintervall in Minuten</summary>
+    </key>
+    <key name="weather-provider" type="s">
+      <default>'open-meteo'</default>
+      <summary>Wetterdienst für die Vorhersage</summary>
+    </key>
+    <key name="places" type="s">
+      <default>'[]'</default>
+      <summary>Gespeicherte Wetterorte</summary>
+    </key>
+    <key name="show-warnings" type="b">
+      <default>true</default>
+      <summary>Amtliche Wetterwarnungen anzeigen</summary>
+    </key>
+    <key name="warning-notifications" type="b">
+      <default>false</default>
+      <summary>Bei neuen oder stärkeren Wetterwarnungen benachrichtigen</summary>
+    </key>
+    <key name="minimum-warning-level" type="i">
+      <default>2</default>
+      <range min="1" max="3"/>
+      <summary>Mindestwarnstufe für Benachrichtigungen</summary>
+    </key>
+    <key name="notified-warnings" type="s">
+      <default>'{}'</default>
+      <summary>Bereits gemeldete Warnstufen</summary>
+    </key>
+    <key name="light-card" type="b">
+      <default>false</default>
+      <summary>Helle Wetterkarte verwenden</summary>
+    </key>
+    <key name="automatic-location" type="b">
+      <default>false</default>
+      <summary>Standort automatisch anhand der IP-Adresse bestimmen</summary>
+    </key>
+  </schema>
+</schemalist>

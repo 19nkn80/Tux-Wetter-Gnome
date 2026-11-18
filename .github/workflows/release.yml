@@ -1,0 +1,48 @@
+name: GitHub-Release veröffentlichen
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Paket und Versionsnummer prüfen
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          source = Path('gnome-extension')
+          archive = Path('tuxwetter@tuxwetter.ch.shell-extension.zip')
+          with ZipFile(archive) as package:
+              metadata = json.loads(package.read('metadata.json'))
+              if f"v{metadata['version-name']}" != os.environ['RELEASE_TAG']:
+                  raise SystemExit('Tag und Paketversion stimmen nicht überein.')
+              for entry in package.infolist():
+                  if entry.is_dir():
+                      continue
+                  original = source / entry.filename
+                  if not original.is_file() or original.read_bytes() != package.read(entry):
+                      raise SystemExit(f'Paketinhalt stimmt nicht mit dem Quellcode überein: {entry.filename}')
+          PY
+      - name: Release mit Installationspaket veröffentlichen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$RELEASE_TAG" \
+            'tuxwetter@tuxwetter.ch.shell-extension.zip' \
+            --verify-tag \
+            --title "TuX-Wetter $RELEASE_TAG" \
+            --notes "Das Installationspaket befindet sich unter „Assets“. Die Installations- und Updateanleitung steht in der README."

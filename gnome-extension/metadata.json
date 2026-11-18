@@ -1,0 +1,10 @@
+{
+  "uuid": "tuxwetter@tuxwetter.ch",
+  "name": "TuX-Wetter",
+  "description": "Wetterkarte mit auswählbaren Wetterdiensten",
+  "license": "GPL-3.0-or-later",
+  "shell-version": ["50"],
+  "settings-schema": "org.gnome.shell.extensions.tuxwetter",
+  "version": 2,
+  "version-name": "0.2"
+}
