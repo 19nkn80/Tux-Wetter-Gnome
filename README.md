@@ -19,8 +19,10 @@ libadwaita werden für das Einstellungsfenster verwendet.
 ```sh
 glib-compile-schemas --strict --dry-run gnome-extension/schemas
 gjs -m tests/weather.test.js
+gjs -m tests/update.test.js
 gnome-extensions pack gnome-extension \
   --extra-source=weather.js \
+  --extra-source=update.js \
   --extra-source=LICENSE \
   --extra-source=icons \
   --out-dir . \
@@ -41,6 +43,20 @@ Die Erweiterung erscheint im Panel. Einstellungen lassen sich über Extension
 Manager oder mit `gnome-extensions prefs tuxwetter@tuxwetter.ch` öffnen. Bei
 Aktualisierungen in einer Wayland-Sitzung kann ein Ab- und Anmelden nötig sein,
 damit GNOME den neuen JavaScript-Code lädt.
+
+## Updates
+
+Die Erweiterung prüft kurz nach dem Start und danach täglich den Branch
+`Zorin181` auf GitHub. Eine neuere Version wird in einem Dialog mit **Update**
+und **Abbrechen** angeboten. Erst nach Bestätigung wird das Paket desselben
+GitHub-Commits heruntergeladen und mit `gnome-extensions install --force`
+installiert. Falls die Prüfung oder Installation fehlschlägt, wird der Fehler
+angezeigt und im GNOME-Shell-Protokoll vermerkt.
+
+Nach der Installation ist unter Wayland gegebenenfalls Ab- und Anmelden nötig,
+um den neuen Code zu laden. Dies geschieht nicht automatisch; offene Programme
+bleiben bis zum regulären Abmelden erhalten. Die Prüfung sendet eine Anfrage an
+GitHub. Die Version `0.1` ist für den Test des Updates auf `0.2` vorgesehen.
 
 ## Inhalt
 

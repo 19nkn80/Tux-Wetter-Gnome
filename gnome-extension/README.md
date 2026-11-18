@@ -18,6 +18,7 @@ Im Projektordner:
 glib-compile-schemas --strict --dry-run gnome-extension/schemas
 gnome-extensions pack gnome-extension \
   --extra-source=weather.js \
+  --extra-source=update.js \
   --extra-source=LICENSE \
   --extra-source=icons \
   --out-dir .
@@ -40,3 +41,9 @@ gnome-extensions prefs tuxwetter@tuxwetter.ch
 ```
 
 Wetterdaten und Ortsnamen werden direkt von Open-Meteo abgerufen.
+
+Die Erweiterung prüft beim Start und danach täglich auf Updates im GitHub-Branch
+`Zorin181`. Ein Update wird erst nach Bestätigung im Dialog installiert; eine
+abgelehnte Version wird bei der nächsten Prüfung wieder angeboten. Fehler werden
+angezeigt und protokolliert. Das Neuladen der GNOME-Sitzung erfolgt nicht
+automatisch.

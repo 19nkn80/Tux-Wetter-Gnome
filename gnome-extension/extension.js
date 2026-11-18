@@ -10,9 +10,17 @@ import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import * as Dialog from 'resource:///org/gnome/shell/ui/dialog.js';
+import * as ModalDialog from 'resource:///org/gnome/shell/ui/modalDialog.js';
+import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import {conditionForCode, forecastUrl, iconForCode, parseForecast} from './weather.js';
+import {updateCandidate, updateCommit} from './update.js';
+
+const UPDATE_API = 'https://api.github.com/repos/19nkn80/Tux-Wetter-Gnome/commits/Zorin181';
+const UPDATE_RAW = 'https://raw.githubusercontent.com/19nkn80/Tux-Wetter-Gnome';
+const UPDATE_PACKAGE = 'tuxwetter@tuxwetter.ch.shell-extension.zip';
 
 function isGerman() {
     return GLib.get_language_names()[0]?.startsWith('de') ?? false;
@@ -84,9 +92,28 @@ export default class TuxWetterExtension extends Extension {
         this._refresh();
         Main.panel.addToStatusArea(this.uuid, this._button);
         this._buttonAdded = true;
+        this._updateSession = new Soup.Session({timeout: 30});
+        this._updateCancellable = new Gio.Cancellable();
+        this._updateTimer = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 20, () => {
+            this._checkForUpdates();
+            this._updateTimer = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 86400, () => {
+                this._checkForUpdates();
+                return GLib.SOURCE_CONTINUE;
+            });
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     disable() {
+        if (this._updateTimer) {
+            GLib.source_remove(this._updateTimer);
+            this._updateTimer = 0;
+        }
+        this._updateCancellable?.cancel();
+        this._updateSession?.abort();
+        this._updateDialog?.close();
+        this._updateDialog = null;
+        this._updateSession = null;
         if (this._refreshTimeout) {
             GLib.source_remove(this._refreshTimeout);
             this._refreshTimeout = 0;
@@ -114,6 +141,143 @@ export default class TuxWetterExtension extends Extension {
         this._session = null;
         this._theme = null;
         this._settings = null;
+    }
+
+    async _downloadUpdateFile(url) {
+        const message = Soup.Message.new('GET', url);
+        message.get_request_headers().append('User-Agent', 'TuX-Wetter-GNOME');
+        const session = this._updateSession;
+        const cancellable = this._updateCancellable;
+        const bytes = await new Promise((resolve, reject) => {
+            session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, cancellable,
+                (source, result) => {
+                    try {
+                        resolve(source.send_and_read_finish(result));
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+        });
+        if (message.get_status() !== Soup.Status.OK)
+            throw new Error(`HTTP ${message.get_status()}: ${message.get_reason_phrase()}`);
+        return bytes.get_data();
+    }
+
+    async _checkForUpdates() {
+        if (this._updateChecking || this._updateDialog || this._updateInstalling)
+            return;
+        this._updateChecking = true;
+        const cancellable = this._updateCancellable;
+        try {
+            const decoder = new TextDecoder();
+            const commit = updateCommit(JSON.parse(decoder.decode(
+                await this._downloadUpdateFile(UPDATE_API))));
+            const metadata = JSON.parse(decoder.decode(await this._downloadUpdateFile(
+                `${UPDATE_RAW}/${commit}/gnome-extension/metadata.json`)));
+            const version = updateCandidate(metadata, this.metadata['version-name'],
+                this.uuid, Config.PACKAGE_VERSION.split('.')[0]);
+            if (version && !cancellable.is_cancelled())
+                this._showUpdateDialog(version, commit);
+        } catch (error) {
+            if (!cancellable.is_cancelled()) {
+                console.error(`TuX-Wetter update check: ${error.message}`);
+                Main.notifyError('TuX-Wetter', text(
+                    `Updateprüfung fehlgeschlagen: ${error.message}`,
+                    `Update check failed: ${error.message}`));
+            }
+        } finally {
+            this._updateChecking = false;
+        }
+    }
+
+    _showUpdateDialog(version, commit) {
+        const dialog = new ModalDialog.ModalDialog();
+        this._updateDialog = dialog;
+        dialog.connect('destroy', () => {
+            if (this._updateDialog === dialog)
+                this._updateDialog = null;
+        });
+        dialog.contentLayout.add_child(new Dialog.MessageDialogContent({
+            title: text('TuX-Wetter: Update verfügbar', 'TuX-Wetter: Update available'),
+            description: text(
+                `Version ${version} ist verfügbar (installiert: ${this.metadata['version-name']}). `
+                    + 'Nach der Installation kann ein Ab- und Anmelden nötig sein.',
+                `Version ${version} is available (installed: ${this.metadata['version-name']}). `
+                    + 'You may need to log out and back in after installation.'),
+        }));
+        dialog.setButtons([
+            {
+                label: text('Abbrechen', 'Cancel'),
+                key: Clutter.KEY_Escape,
+                action: () => dialog.close(),
+            },
+            {
+                label: text('Update', 'Update'),
+                action: () => {
+                    dialog.close();
+                    this._installUpdate(version, commit);
+                },
+            },
+        ]);
+        if (!dialog.open()) {
+            dialog.destroy();
+            throw new Error('Could not open the update dialog');
+        }
+    }
+
+    async _installUpdate(version, commit) {
+        if (this._updateInstalling)
+            return;
+        this._updateInstalling = true;
+        const cancellable = this._updateCancellable;
+        let directory = null;
+        let packageFile = null;
+        let processStarted = false;
+        try {
+            const data = await this._downloadUpdateFile(`${UPDATE_RAW}/${commit}/${UPDATE_PACKAGE}`);
+            if (cancellable.is_cancelled())
+                return;
+            directory = Gio.File.new_for_path(GLib.dir_make_tmp('tuxwetter-update-XXXXXX'));
+            packageFile = directory.get_child(UPDATE_PACKAGE);
+            packageFile.replace_contents(data, null, false,
+                Gio.FileCreateFlags.PRIVATE, null);
+            const process = Gio.Subprocess.new(
+                ['gnome-extensions', 'install', '--force', packageFile.get_path()],
+                Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE);
+            processStarted = true;
+            const [stdout, stderr] = await new Promise((resolve, reject) => {
+                process.communicate_utf8_async(null, null, (source, result) => {
+                    try {
+                        const [, out, err] = source.communicate_utf8_finish(result);
+                        resolve([out, err]);
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            });
+            if (!process.get_successful())
+                throw new Error((stderr || stdout || `Exit status ${process.get_exit_status()}`).trim());
+            Main.notify('TuX-Wetter', text(
+                `Version ${version} installiert. Bitte ab- und wieder anmelden, um sie zu laden.`,
+                `Version ${version} installed. Log out and back in to load it.`));
+        } catch (error) {
+            if (processStarted || !cancellable.is_cancelled()) {
+                console.error(`TuX-Wetter update installation: ${error.message}`);
+                Main.notifyError('TuX-Wetter', text(
+                    `Update fehlgeschlagen: ${error.message}`,
+                    `Update failed: ${error.message}`));
+            }
+        } finally {
+            try {
+                if (packageFile?.query_exists(null))
+                    packageFile.delete(null);
+                if (directory?.query_exists(null))
+                    directory.delete(null);
+            } catch (error) {
+                console.error(`TuX-Wetter update cleanup: ${error.message}`);
+            }
+            this._updateInstalling = false;
+        }
     }
 
     _scheduleRefresh() {
