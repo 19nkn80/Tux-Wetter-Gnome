@@ -135,15 +135,15 @@ export class BackgroundUpdates {
         } finally {
             this._busy = false;
         }
+    }
 
-        async _logout() {
-            try {
-                await requestLogout();
-            } catch (error) {
-                console.error(`TuX-Wetter: Abmelden fehlgeschlagen: ${error.message}`);
-                if (!this._stopped)
-                    Main.notify('TuX-Wetter', 'Abmelden fehlgeschlagen. Bitte melde dich über das Systemmenü ab.');
-            }
+    async _logout() {
+        try {
+            await requestLogout();
+        } catch (error) {
+            console.error(`TuX-Wetter: Abmelden fehlgeschlagen: ${error.message}`);
+            if (!this._stopped)
+                Main.notify('TuX-Wetter', 'Abmelden fehlgeschlagen. Bitte melde dich über das Systemmenü ab.');
         }
     }
 }
