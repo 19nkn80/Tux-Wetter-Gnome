@@ -35,6 +35,12 @@ Projektstamm.
 
 ## Installieren
 
+Eine ausführliche Anleitung für GNOME mit Voraussetzungen, Download und
+Fehlerhilfe steht in [Anleitung-GNOME-Installation.md](Anleitung-GNOME-Installation.md).
+Das beigefügte Paket `TuX-Wetter-GNOME-0.2.shell-extension.zip` enthält
+Version 0.2. Das unten genannte Paket kann in der lokalen Testumgebung
+abweichend Version 0.1 enthalten.
+
 ```sh
 gnome-extensions install --force ./tuxwetter@tuxwetter.ch.shell-extension.zip
 gnome-extensions enable tuxwetter@tuxwetter.ch
