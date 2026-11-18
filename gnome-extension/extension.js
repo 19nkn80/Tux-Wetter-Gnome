@@ -163,11 +163,18 @@ export default class TuxWetterExtension extends Extension {
         return bytes.get_data();
     }
 
-    async _checkForUpdates() {
-        if (this._updateChecking || this._updateDialog || this._updateInstalling)
+    async _checkForUpdates(manual = false) {
+        if (this._updateChecking || this._updateDialog || this._updateInstalling) {
+            if (manual)
+                Main.notify('TuX-Wetter', text(
+                    'Eine Updateprüfung oder Installation läuft bereits.',
+                    'An update check or installation is already in progress.'));
             return;
+        }
         this._updateChecking = true;
         const cancellable = this._updateCancellable;
+        if (manual)
+            Main.notify('TuX-Wetter', text('Suche nach Updates …', 'Checking for updates …'));
         try {
             const decoder = new TextDecoder();
             const commit = updateCommit(JSON.parse(decoder.decode(
@@ -178,6 +185,10 @@ export default class TuxWetterExtension extends Extension {
                 this.uuid, Config.PACKAGE_VERSION.split('.')[0]);
             if (version && !cancellable.is_cancelled())
                 this._showUpdateDialog(version, commit);
+            else if (manual && !cancellable.is_cancelled())
+                Main.notify('TuX-Wetter', text(
+                    `Version ${this.metadata['version-name']} ist aktuell.`,
+                    `Version ${this.metadata['version-name']} is up to date.`));
         } catch (error) {
             if (!cancellable.is_cancelled()) {
                 console.error(`TuX-Wetter update check: ${error.message}`);
@@ -449,6 +460,20 @@ export default class TuxWetterExtension extends Extension {
             'preferences-system-symbolic', 'tuxwetter-footer-button',
             () => this.openPreferences(), text('Einstellungen', 'Preferences')));
         card.add_child(footer);
+
+        const info = new St.BoxLayout({style_class: 'tuxwetter-info'});
+        const attribution = this._label(
+            `TuX-Wetter ${this.metadata['version-name']} · Fork: Mastertac (tux-wetter-1.5-kde_widget)`,
+            'tuxwetter-source');
+        attribution.x_expand = true;
+        info.add_child(attribution);
+        info.add_child(this._createButton(
+            text('Auf Updates prüfen', 'Check for updates'),
+            'tuxwetter-update-button', () => {
+                this._button.menu.close();
+                this._checkForUpdates(true);
+            }));
+        card.add_child(info);
     }
 
     _createButton(label, styleClass, action, accessibleName = label) {

@@ -3,6 +3,7 @@
 Eine GNOME-Shell-Erweiterung mit einer Wetterkarte im Stil des ursprünglichen
 KDE-Plasma-Widgets TuX-Wetter. Die Erweiterung verwendet Open-Meteo für aktuelle
 Bedingungen, Stunden- und Tagesvorhersagen sowie die Ortssuche.
+Sie ist ein Fork von `tux-wetter-1.5-kde_widget` von Mastertac.
 
 ## Voraussetzungen
 
@@ -52,6 +53,9 @@ und **Abbrechen** angeboten. Erst nach Bestätigung wird das Paket desselben
 GitHub-Commits heruntergeladen und mit `gnome-extensions install --force`
 installiert. Falls die Prüfung oder Installation fehlschlägt, wird der Fehler
 angezeigt und im GNOME-Shell-Protokoll vermerkt.
+Die Schaltfläche **Auf Updates prüfen** in der Wetterkarte startet die Prüfung
+auch manuell und meldet, wenn bereits die aktuelle Version installiert ist.
+Die Wetterkarte zeigt außerdem die Versionsnummer und den Ursprung des Forks an.
 
 Nach der Installation ist unter Wayland gegebenenfalls Ab- und Anmelden nötig,
 um den neuen Code zu laden. Dies geschieht nicht automatisch; offene Programme

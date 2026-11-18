@@ -5,6 +5,8 @@ gefühlt, Wind, Regenwahrscheinlichkeit, Luftfeuchtigkeit, sechs Stundenwerte, e
 Fünf-Tage-Vorschau mit Temperaturspanne und Niederschlag sowie Sonnenzeiten und UV-Index.
 Orte lassen sich über die Open-Meteo-Geocodierung suchen und speichern; Farbschema,
 Temperatureinheit und Aktualisierungsintervall sind einstellbar.
+Die Erweiterung ist ein Fork von `tux-wetter-1.5-kde_widget` von Mastertac;
+Versionsnummer und Herkunft stehen auf der Wetterkarte.
 
 Noch nicht portiert sind weitere Wetteranbieter, amtliche Warnungen, Luftqualität und Pollen,
 automatische Standortermittlung, animierte Symbole und die Tageskurven.
@@ -47,3 +49,5 @@ Die Erweiterung prüft beim Start und danach täglich auf Updates im GitHub-Bran
 abgelehnte Version wird bei der nächsten Prüfung wieder angeboten. Fehler werden
 angezeigt und protokolliert. Das Neuladen der GNOME-Sitzung erfolgt nicht
 automatisch.
+Über **Auf Updates prüfen** auf der Wetterkarte kann die Prüfung auch manuell
+gestartet werden. Ist keine neuere Version verfügbar, erscheint eine Meldung.
