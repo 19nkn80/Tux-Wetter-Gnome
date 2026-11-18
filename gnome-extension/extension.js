@@ -32,6 +32,7 @@ import {
 import {IP_LOCATION_URL, parseIpLocation} from './location.js';
 import {displayError} from './errors.js';
 import {isGerman, text} from './ui-language.js';
+import {BackgroundUpdates} from './background-update.js';
 import {
     airQualityLevel,
     airQualityRequestUrl,
@@ -149,9 +150,13 @@ export default class TuxWetterExtension extends Extension {
         this._refresh();
         Main.panel.addToStatusArea(this.uuid, this._button);
         this._buttonAdded = true;
+        this._backgroundUpdates = new BackgroundUpdates(
+            this.metadata['version-name'] ?? String(this.metadata.version));
     }
 
     disable() {
+        this._backgroundUpdates?.stop();
+        this._backgroundUpdates = null;
         if (this._refreshTimeout) {
             GLib.source_remove(this._refreshTimeout);
             this._refreshTimeout = 0;

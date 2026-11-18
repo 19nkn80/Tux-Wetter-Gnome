@@ -8,8 +8,9 @@ Es handelt sich um einen GNOME-Fork des KDE-Widgets **TuX-Wetter 1.5 von
 Mastertac**. Die Oberfläche ist unabhängig von der Systemsprache auf Deutsch.
 Orte lassen sich über die Open-Meteo-Geocodierung suchen und speichern; Farbschema,
 Temperatureinheit und Aktualisierungsintervall sind einstellbar.
-In den Einstellungen kann auf GitHub nach neueren Releases gesucht werden. Der
-Benutzer öffnet und installiert ein gefundenes Release selbst.
+Die Erweiterung prüft im Hintergrund und in den Einstellungen auf neue
+GitHub-Releases. Ein Update wird erst nach Bestätigung im Dialog heruntergeladen
+und installiert. Nach der Installation bitte ab- und wieder anmelden.
 Auswählbar sind Open-Meteo, DWD ICON-D2 und MeteoSwiss ICON-CH2 (beide über
 Open-Meteo), GeoSphere Austria sowie MET Norway / Yr. Die Anbieterauswahl und
 die dazugehörigen Prognose-APIs bleiben unverändert. GeoSphere deckt den
@@ -53,6 +54,8 @@ gnome-extensions pack gnome-extension \
   --extra-source=location.js \
   --extra-source=errors.js \
   --extra-source=ui-language.js \
+  --extra-source=background-update.js \
+  --extra-source=update-service.js \
   --extra-source=supplementary.js \
   --extra-source=updates.js \
   --extra-source=stylesheet.css \

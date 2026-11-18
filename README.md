@@ -117,6 +117,8 @@ gnome-extensions pack gnome-extension \
   --extra-source=location.js \
   --extra-source=errors.js \
   --extra-source=ui-language.js \
+  --extra-source=background-update.js \
+  --extra-source=update-service.js \
   --extra-source=supplementary.js \
   --extra-source=updates.js \
   --extra-source=stylesheet.css \
@@ -156,12 +158,15 @@ Wähle dort den Wetterdienst und suche deinen Ort. Zum Aktualisieren denselben
 Installationsbefehl mit dem neu heruntergeladenen ZIP ausführen und danach
 ab- und wieder anmelden. Einstellungen und Orte bleiben dabei erhalten.
 
-In den TuX-Wetter-Einstellungen wird beim Öffnen nach einer neueren Version auf
-GitHub gesucht. Bei einem Treffer kann man das Release aufrufen und das ZIP
-selbst herunterladen und installieren. Es wird nichts ohne Zustimmung installiert.
-Es gibt keinen automatischen Download oder eine automatische Installation:
-Automatisch ist nur die Prüfung beim Öffnen der Einstellungen. Mit „Jetzt
-suchen“ kann sie erneut gestartet werden.
+TuX-Wetter prüft nach dem Start und anschließend täglich im Hintergrund auf
+GitHub, ob eine neuere Version verfügbar ist. Ist der Bildschirm gesperrt,
+wird der Dialog bis zur Entsperrung zurückgestellt. In den Einstellungen wird
+ebenfalls beim Öffnen geprüft; mit „Jetzt suchen“ kann die Prüfung erneut
+gestartet werden. Bei einem Treffer öffnet sich ein Dialog mit „Update“ und
+„Abbrechen“. Nur nach Zustimmung wird das Release-ZIP heruntergeladen, anhand
+der GitHub-SHA-256-Prüfsumme geprüft und mit `gnome-extensions install --force`
+installiert. Danach bitte ab- und wieder anmelden. Bei „Abbrechen“ wird nichts
+installiert. Alternativ lässt sich das Release weiterhin manuell öffnen.
 Der Update-Check verwendet öffentliche GitHub-Releases; bei einem privaten
 Repository oder ohne veröffentlichtes Release meldet er, dass kein Release
 gefunden wurde. Ein veröffentlichtes Release braucht einen numerischen Tag,

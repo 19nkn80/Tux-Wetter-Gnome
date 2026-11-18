@@ -9,7 +9,7 @@ import Soup from 'gi://Soup?version=3.0';
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import {geocodingUrl, parseGeocodingResults} from './weather.js';
 import {WEATHER_PROVIDERS} from './providers.js';
-import {newerRelease, releaseRequestHeaders, RELEASE_API_URL} from './updates.js';
+import {checkForUpdate, installUpdate} from './update-service.js';
 import {IP_LOCATION_URL, parseIpLocation} from './location.js';
 import {displayError} from './errors.js';
 import {isGerman, text} from './ui-language.js';
@@ -271,8 +271,8 @@ export default class TuxWetterPreferences extends ExtensionPreferences {
         const updateGroup = new Adw.PreferencesGroup({
             title: text('Aktualisierungen', 'Updates'),
             description: text(
-                'Prüft GitHub auf eine neuere Version. Die Installation startet erst, wenn du das Release öffnest und das ZIP installierst.',
-                'Checks GitHub for a newer version. Installation starts only after you open the release and install its ZIP.'),
+                'Prüft GitHub auf eine neuere Version. Ein Update wird nur nach deiner Zustimmung installiert.',
+                'Checks GitHub for a newer version. Updates require your confirmation.'),
         });
         const installedVersion = this.metadata['version-name'] ?? String(this.metadata.version);
         const updateRow = new Adw.ActionRow({
@@ -483,7 +483,7 @@ export default class TuxWetterPreferences extends ExtensionPreferences {
 
         saveLocation.connect('clicked', savePlace);
         saveCurrent.connect('clicked', addCurrentPlace);
-        const checkForUpdates = () => {
+        const checkForUpdates = async () => {
             updateCancellable?.cancel();
             updateCancellable = new Gio.Cancellable();
             const cancellable = updateCancellable;
@@ -492,53 +492,56 @@ export default class TuxWetterPreferences extends ExtensionPreferences {
             releaseUrl = null;
             updateStatus.subtitle = text('GitHub wird geprüft …', 'Checking GitHub …');
 
-            const message = Soup.Message.new('GET', RELEASE_API_URL);
-            for (const [name, value] of Object.entries(releaseRequestHeaders(installedVersion)))
-                message.request_headers.append(name, value);
-            session.send_and_read_async(
-                message,
-                GLib.PRIORITY_DEFAULT,
-                cancellable,
-                (httpSession, result) => {
+            try {
+                const release = await checkForUpdate(session, installedVersion, cancellable);
+                if (updateCancellable !== cancellable || cancellable.is_cancelled())
+                    return;
+                if (!release) {
+                    updateStatus.subtitle = 'Du verwendest bereits die aktuelle Version.';
+                    return;
+                }
+
+                releaseUrl = release.url;
+                updateStatus.subtitle = `Version ${release.version} ist verfügbar.`;
+                openRelease.sensitive = true;
+                const dialog = new Adw.AlertDialog({
+                    heading: `TuX-Wetter ${release.version} ist verfügbar`,
+                    body: 'Das Update von GitHub herunterladen und installieren? '
+                        + 'Deine Einstellungen bleiben erhalten. Anschließend bitte ab- und wieder anmelden.',
+                });
+                dialog.add_response('cancel', 'Abbrechen');
+                dialog.add_response('update', 'Update');
+                dialog.set_default_response('cancel');
+                dialog.set_close_response('cancel');
+                dialog.connect('response', async (_dialog, response) => {
+                    if (response !== 'update' || cancellable.is_cancelled())
+                        return;
+                    checkUpdates.sensitive = false;
+                    updateStatus.subtitle = 'Update wird heruntergeladen und installiert …';
                     try {
-                        const bytes = httpSession.send_and_read_finish(result);
-                        if (updateCancellable !== cancellable || cancellable.is_cancelled())
-                            return;
-                        if (message.get_status() === 404) {
-                            throw new Error(text(
-                                'Kein öffentliches GitHub-Release gefunden (HTTP 404).',
-                                'No public GitHub release found (HTTP 404).'));
-                        }
-                        if (message.get_status() !== Soup.Status.OK)
-                            throw new Error(`HTTP-Fehler ${message.get_status()}`);
-
-                        const release = newerRelease(
-                            JSON.parse(new TextDecoder().decode(bytes.get_data())),
-                            installedVersion);
-                        if (!release) {
-                            updateStatus.subtitle = text(
-                                'Du verwendest bereits die aktuelle Version.',
-                                'You are already using the latest version.');
-                            return;
-                        }
-
-                        releaseUrl = release.url;
-                        updateStatus.subtitle = text(
-                            `Version ${release.version} ist verfügbar.`,
-                            `Version ${release.version} is available.`);
-                        openRelease.sensitive = true;
+                        await installUpdate(session, release, cancellable);
+                        if (!cancellable.is_cancelled())
+                            updateStatus.subtitle = 'Update installiert. Bitte ab- und wieder anmelden.';
                     } catch (error) {
-                        if (updateCancellable !== cancellable || cancellable.is_cancelled())
-                            return;
-                        updateStatus.subtitle = text(
-                            `Update-Prüfung fehlgeschlagen: ${displayError(error)}`,
-                            `Update check failed: ${error.message}`);
-                        console.error(`TuX-Wetter: ${error.message}`);
+                        if (!cancellable.is_cancelled()) {
+                            updateStatus.subtitle = `Update fehlgeschlagen: ${displayError(error)}`;
+                            console.error(`TuX-Wetter: Update fehlgeschlagen: ${error.message}`);
+                        }
                     } finally {
                         if (updateCancellable === cancellable)
                             checkUpdates.sensitive = true;
                     }
                 });
+                dialog.present(window);
+            } catch (error) {
+                if (updateCancellable !== cancellable || cancellable.is_cancelled())
+                    return;
+                updateStatus.subtitle = `Update-Prüfung fehlgeschlagen: ${displayError(error)}`;
+                console.error(`TuX-Wetter: ${error.message}`);
+            } finally {
+                if (updateCancellable === cancellable)
+                    checkUpdates.sensitive = true;
+            }
         };
         checkUpdates.connect('clicked', checkForUpdates);
         openRelease.connect('clicked', () => {
