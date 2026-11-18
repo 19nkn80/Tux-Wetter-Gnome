@@ -421,7 +421,8 @@ export default class TuxWetterExtension extends Extension {
             let warnings;
             if (country === 'AT') {
                 const data = await this._requestJson(
-                    geoSphereWarningsUrl(place.latitude, place.longitude, 'de'),
+                    geoSphereWarningsUrl(
+                        place.latitude, place.longitude, isGerman() ? 'de' : 'en'),
                     {},
                     cancellable);
                 warnings = parseGeoSphereWarnings(data);
@@ -436,7 +437,8 @@ export default class TuxWetterExtension extends Extension {
                 const warningData = await this._getDwdWarnings(cancellable);
                 warnings = parseDwdWarnings(warningData, cellIds);
             } else if (country === 'CH') {
-                const request = meteoswissWarningsRequest(place.postcodes ?? []);
+                const request = meteoswissWarningsRequest(
+                    place.postcodes ?? [], isGerman() ? 'de' : 'en');
                 let lastError = null;
                 for (const url of request.urls) {
                     try {
@@ -495,7 +497,10 @@ export default class TuxWetterExtension extends Extension {
         if (!this._dwdWarningsPromise) {
             this._dwdWarningsPromise = this._requestText(
                 dwdWarningsUrl(),
-                {'User-Agent': 'TuXWetterGnome/0.2 (https://github.com/19nkn80/Tux-Wetter-Gnome)'},
+                {
+                    'User-Agent': 'TuXWetterGnome/0.2 (https://github.com/19nkn80/Tux-Wetter-Gnome)',
+                    'Accept-Language': isGerman() ? 'de' : 'en',
+                },
                 cancellable).catch(error => {
                 this._dwdWarningsPromise = null;
                 throw error;

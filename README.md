@@ -4,8 +4,9 @@ Diese GNOME-Shell-Erweiterung ist ein Fork des KDE-Plasma-Widgets
 **TuX-Wetter 1.5 von Mastertac**, angepasst für GNOME. Für aktuelle Bedingungen sowie Stunden- und
 Tagesvorhersagen sind mehrere Wetterdienste auswählbar; die Ortssuche verwendet
 Open-Meteo.
-Diese Ausgabe trägt die Release-Version **0.2**. Die Oberfläche ist unabhängig
-von der Systemsprache auf Deutsch.
+Diese Ausgabe trägt die Release-Version **0.2**. Die Oberfläche und die
+mehrsprachigen Warntexte folgen der eingestellten Systemsprache (Deutsch oder
+Englisch).
 
 ## Voraussetzungen
 

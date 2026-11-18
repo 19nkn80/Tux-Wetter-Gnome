@@ -49,7 +49,7 @@ export function geoSphereWarningsUrl(latitude, longitude, language = 'de') {
     return `${GEOSPHERE_WARNING_URL}?${query}`;
 }
 
-export function meteoswissWarningsRequest(postalCodes) {
+export function meteoswissWarningsRequest(postalCodes, language = 'de') {
     if (!Array.isArray(postalCodes))
         throw new Error('Ungültige Schweizer Postleitzahlen.');
     const normalized = [...new Set(postalCodes
@@ -60,7 +60,10 @@ export function meteoswissWarningsRequest(postalCodes) {
     return {
         urls: normalized.map(code =>
             `${METEOSWISS_DETAIL_URL}?plz=${encodeURIComponent(`${code}00`)}`),
-        headers: {'User-Agent': METEOSWISS_USER_AGENT},
+        headers: {
+            'User-Agent': METEOSWISS_USER_AGENT,
+            'Accept-Language': language.startsWith('de') ? 'de' : 'en',
+        },
     };
 }
 

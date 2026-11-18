@@ -29,12 +29,17 @@ assert(dwdWarningsUrl().includes('/warnapp/json/warnings.json'),
 assert(dwdZonesUrl(52.5, 13.4).includes('bbox='),
     'DWD warning zone lookup should be restricted to the requested point');
 assert(geoSphereWarningsUrl(48.2, 16.3, 'de').includes('lang=de'),
-    'GeoSphere warning requests should include the selected language');
+    'GeoSphere warning requests should use German for a German system locale');
+assert(geoSphereWarningsUrl(48.2, 16.3, 'en').includes('lang=en'),
+    'GeoSphere warning requests should use English for a non-German system locale');
 const swissRequest = meteoswissWarningsRequest(['6000', '6003']);
 assert(swissRequest.urls[0].includes('/v1/plzDetail?plz=600000'),
     'MeteoSwiss should use the selected postal code with its app endpoint');
 assert(swissRequest.headers['User-Agent'].includes('ch.admin.meteoswiss'),
     'MeteoSwiss requests should identify the official mobile app client');
+assert(swissRequest.headers['Accept-Language'] === 'de' &&
+    meteoswissWarningsRequest(['6000'], 'en').headers['Accept-Language'] === 'en',
+    'MeteoSwiss warning details should follow the system language');
 
 const dwdWarnings = parseDwdWarnings(
     `warnWetter.loadWarnings(${JSON.stringify({

@@ -485,11 +485,13 @@ export default class TuxWetterPreferences extends ExtensionPreferences {
         saveCurrent.connect('clicked', addCurrentPlace);
         const showUpdateResult = (heading, body, offerLogout = false) => {
             const result = new Adw.AlertDialog({heading, body});
-            result.add_response('later', offerLogout ? 'Jetzt nicht abmelden' : 'Schließen');
+            result.add_response('later', offerLogout
+                ? text('Jetzt nicht abmelden', 'Not now')
+                : text('Schließen', 'Close'));
             result.set_default_response('later');
             result.set_close_response('later');
             if (offerLogout) {
-                result.add_response('logout', 'Abmelden');
+                result.add_response('logout', text('Abmelden', 'Sign out'));
                 result.connect('response', async (_dialog, response) => {
                     if (response !== 'logout')
                         return;
@@ -497,9 +499,12 @@ export default class TuxWetterPreferences extends ExtensionPreferences {
                         await requestLogout();
                     } catch (error) {
                         console.error(`TuX-Wetter: Abmelden fehlgeschlagen: ${error.message}`);
-                        updateStatus.subtitle = 'Abmelden fehlgeschlagen. Bitte das Systemmenü verwenden.';
-                        showUpdateResult('Abmelden fehlgeschlagen',
-                            'Bitte melde dich über das Systemmenü ab.');
+                        updateStatus.subtitle = text(
+                            'Abmelden fehlgeschlagen. Bitte das Systemmenü verwenden.',
+                            'Could not sign out. Please use the system menu.');
+                        showUpdateResult(text('Abmelden fehlgeschlagen', 'Could not sign out'),
+                            text('Bitte melde dich über das Systemmenü ab.',
+                                'Please sign out from the system menu.'));
                     }
                 });
             }
@@ -519,43 +524,58 @@ export default class TuxWetterPreferences extends ExtensionPreferences {
                 if (updateCancellable !== cancellable || cancellable.is_cancelled())
                     return;
                 if (!release) {
-                    updateStatus.subtitle = 'Du verwendest bereits die aktuelle Version.';
+                    updateStatus.subtitle = text(
+                        'Du verwendest bereits die aktuelle Version.',
+                        'You are already using the latest version.');
                     return;
                 }
 
                 releaseUrl = release.url;
-                updateStatus.subtitle = `Version ${release.version} ist verfügbar.`;
+                updateStatus.subtitle = text(
+                    `Version ${release.version} ist verfügbar.`,
+                    `Version ${release.version} is available.`);
                 openRelease.sensitive = true;
                 const dialog = new Adw.AlertDialog({
-                    heading: `TuX-Wetter ${release.version} ist verfügbar`,
-                    body: 'Das Update von GitHub herunterladen und installieren? '
+                    heading: text(`TuX-Wetter ${release.version} ist verfügbar`,
+                        `TuX-Wetter ${release.version} is available`),
+                    body: text('Das Update von GitHub herunterladen und installieren? '
                         + 'Deine Einstellungen bleiben erhalten. Anschließend bitte ab- und wieder anmelden.',
+                    'Download and install the update from GitHub? Your settings will be kept. '
+                        + 'After installation, sign out and back in.'),
                 });
-                dialog.add_response('cancel', 'Abbrechen');
-                dialog.add_response('update', 'Update');
+                dialog.add_response('cancel', text('Abbrechen', 'Cancel'));
+                dialog.add_response('update', text('Update', 'Update'));
                 dialog.set_default_response('cancel');
                 dialog.set_close_response('cancel');
                 dialog.connect('response', async (_dialog, response) => {
                     if (response !== 'update' || cancellable.is_cancelled())
                         return;
                     checkUpdates.sensitive = false;
-                    updateStatus.subtitle = 'Update wird heruntergeladen und installiert …';
+                    updateStatus.subtitle = text('Update wird heruntergeladen und installiert …',
+                        'Downloading and installing update …');
                     try {
                         await installUpdate(session, release, cancellable);
                         if (!cancellable.is_cancelled()) {
-                            updateStatus.subtitle = 'Update installiert. Bitte ab- und wieder anmelden.';
+                            updateStatus.subtitle = text(
+                                'Update installiert. Bitte ab- und wieder anmelden.',
+                                'Update installed. Please sign out and back in.');
                             showUpdateResult(
-                                'Update erfolgreich',
-                                `TuX-Wetter ${release.version} wurde installiert. `
+                                text('Update erfolgreich', 'Update successful'),
+                                text(`TuX-Wetter ${release.version} wurde installiert. `
                                     + 'Bitte abmelden und wieder anmelden, um die neue Version zu laden.',
+                                `TuX-Wetter ${release.version} was installed. `
+                                    + 'Sign out and back in to load the new version.'),
                                 true);
                         }
                     } catch (error) {
                         if (!cancellable.is_cancelled()) {
-                            updateStatus.subtitle = `Update fehlgeschlagen: ${displayError(error)}`;
+                            updateStatus.subtitle = text(
+                                `Update fehlgeschlagen: ${displayError(error)}`,
+                                `Update failed: ${error.message}`);
                             console.error(`TuX-Wetter: Update fehlgeschlagen: ${error.message}`);
-                            showUpdateResult('Update fehlgeschlagen',
-                                `${displayError(error)} Bitte versuche es erneut oder installiere das ZIP manuell.`);
+                            showUpdateResult(text('Update fehlgeschlagen', 'Update failed'),
+                                text(`${displayError(error)} Bitte versuche es erneut oder installiere das ZIP manuell.`,
+                                    `${error.message} Please try again or install the ZIP manually.`));
                         }
                     } finally {
                         if (updateCancellable === cancellable)
@@ -566,7 +586,9 @@ export default class TuxWetterPreferences extends ExtensionPreferences {
             } catch (error) {
                 if (updateCancellable !== cancellable || cancellable.is_cancelled())
                     return;
-                updateStatus.subtitle = `Update-Prüfung fehlgeschlagen: ${displayError(error)}`;
+                updateStatus.subtitle = text(
+                    `Update-Prüfung fehlgeschlagen: ${displayError(error)}`,
+                    `Update check failed: ${error.message}`);
                 console.error(`TuX-Wetter: ${error.message}`);
             } finally {
                 if (updateCancellable === cancellable)

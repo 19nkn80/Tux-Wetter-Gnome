@@ -5,7 +5,8 @@ Ubuntu 26.04.1. Die Wetterkarte verwendet die originalen TuX-Wetter-Symbole, zei
 gefühlt, Wind, Regenwahrscheinlichkeit, Luftfeuchtigkeit, sechs Stundenwerte, eine
 Fünf-Tage-Vorschau mit Temperaturspanne und Niederschlag sowie Sonnenzeiten und UV-Index.
 Es handelt sich um einen GNOME-Fork des KDE-Widgets **TuX-Wetter 1.5 von
-Mastertac**. Die Oberfläche ist unabhängig von der Systemsprache auf Deutsch.
+Mastertac**. Die Oberfläche und mehrsprachigen Warntexte folgen der eingestellten
+Systemsprache (Deutsch oder Englisch).
 Orte lassen sich über die Open-Meteo-Geocodierung suchen und speichern; Farbschema,
 Temperatureinheit und Aktualisierungsintervall sind einstellbar.
 Die Erweiterung prüft im Hintergrund und in den Einstellungen auf neue

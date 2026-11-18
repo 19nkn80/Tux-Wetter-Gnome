@@ -11,8 +11,13 @@ function assert(condition, message) {
         throw new Error(message);
 }
 
-assert(isGerman() && text('Deutsch', 'English') === 'Deutsch',
-    'the interface should use German even when the system locale is not German');
+assert(isGerman('de_DE.UTF-8') && isGerman('de-CH'),
+    'German system locale variants should be recognized');
+assert(!isGerman('en_US.UTF-8') && !isGerman('fr_FR.UTF-8'),
+    'non-German system locales should use the English interface');
+assert(text('Deutsch', 'English', 'de_DE.UTF-8') === 'Deutsch' &&
+    text('Deutsch', 'English', 'en_US.UTF-8') === 'English',
+    'interface text should follow the system locale');
 assert(displayError(new Error('HTTP-Fehler 403')) === 'HTTP-Fehler 403',
     'known errors should retain their German details');
 assert(displayError(new SyntaxError('unexpected token')).startsWith('Technischer Fehler'),
